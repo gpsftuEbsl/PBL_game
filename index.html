@@ -324,8 +324,8 @@
         btn.disabled = true;
         btn.innerText = "分析中...";
 
-        // 答題冷卻時間：10秒 (防止秒答/亂按)
-        let cooldown = 10;
+        // 答題冷卻時間：20秒 (防止秒答/亂按)
+        let cooldown = 20;
         let timer = setInterval(() => {
             cooldown--;
             btn.innerText = `系統鎖定 (${cooldown}s)`;
@@ -359,7 +359,7 @@
         }
     }
 
-    // 6. PBL 結果卡 (強制停留 30秒)
+    // 6. PBL 結果卡 (強制停留 15秒)
     function showResult(level) {
         gameData.state = "result";
         const screen = document.getElementById('screen');
@@ -385,8 +385,8 @@
         input.disabled = true;
         btn.disabled = true;
 
-        // 強制停留 30秒
-        let waitTime = 30;
+        // 強制停留 15秒
+        let waitTime = 15;
         let timer = setInterval(() => {
             waitTime--;
             btn.innerText = `上傳中 (${waitTime}s)`;
