@@ -3,204 +3,424 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星際補給站長 - 數學任務</title>
+    <title>PROJECT: STAR-MATH // V2.0</title>
     <style>
+        /* --- 基礎設定 & 世界觀氛圍 --- */
         body {
-            background-color: #0d0d1a;
+            background-color: #050505;
             color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Courier New', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            background-image: linear-gradient(rgba(0, 20, 10, 0.9) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 20, 10, 0.9) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
-        .console-box {
-            background: rgba(0, 20, 40, 0.9);
-            border: 2px solid #00ffcc;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
-            padding: 30px;
-            width: 600px;
-            text-align: center;
-            border-radius: 10px;
+
+        /* --- 遊戲主機外框 --- */
+        .console-container {
+            width: 800px;
+            height: 550px;
+            background: rgba(10, 15, 20, 0.95);
+            border: 4px solid #00ffcc;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3), inset 0 0 50px rgba(0, 0, 0, 0.8);
             position: relative;
-        }
-        h1 {
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px #00ffcc;
-        }
-        .screen {
-            background: #000;
-            border: 1px solid #004433;
             padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- 頂部狀態列 --- */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #004433;
+            padding-bottom: 10px;
             margin-bottom: 20px;
-            height: 200px;
+            font-size: 0.9em;
+            color: #55aa88;
+        }
+
+        /* --- 主要顯示螢幕 --- */
+        .main-screen {
+            flex-grow: 1;
+            background: #000;
+            border: 1px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+            color: #ccffee;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        /* --- 載入條動畫 (防作弊核心) --- */
+        .loader-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 999;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 1.2em;
-            color: #ccffee;
         }
-        .input-area {
-            display: none;
+        .progress-bar-bg {
+            width: 80%;
+            height: 20px;
+            background: #222;
+            border: 2px solid #00ffcc;
+            margin-top: 20px;
+            position: relative;
         }
-        input[type="number"], input[type="text"] {
+        .progress-bar-fill {
+            height: 100%;
+            background: #00ffcc;
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px #00ffcc;
+        }
+        .warning-text {
+            color: #ff3333;
+            font-size: 0.8em;
+            margin-top: 10px;
+            animation: blink 1s infinite;
+        }
+
+        /* --- 輸入與控制區 --- */
+        .control-panel {
+            margin-top: 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        input {
             background: transparent;
             border: none;
-            border-bottom: 2px solid #00ffcc;
+            border-bottom: 3px solid #00ffcc;
             color: #fff;
             font-size: 1.5em;
             text-align: center;
-            width: 150px;
-            margin-right: 10px;
+            width: 200px;
+            font-family: inherit;
         }
-        input:focus {
-            outline: none;
-        }
+        input:focus { outline: none; background: rgba(0, 255, 204, 0.1); }
+        
         button {
             background: #00ffcc;
             color: #000;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 25px;
             font-size: 1.2em;
-            cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
+            cursor: pointer;
+            text-transform: uppercase;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            transition: 0.2s;
         }
-        button:hover {
-            background: #fff;
-            box-shadow: 0 0 15px #fff;
+        button:hover { background: #fff; transform: scale(1.05); }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; transform: none; }
+
+        /* --- 特效與動畫 --- */
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
+        .typing::after { content: '▋'; animation: blink 1s infinite; }
+        
+        .result-card {
+            border: 2px dashed #ff00ff;
+            padding: 20px;
+            margin-top: 20px;
+            background: rgba(20, 0, 20, 0.5);
+            color: #ffccff;
         }
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.9em;
-            color: #aaa;
-        }
-        .hidden { display: none; }
-        .feedback {
-            color: #ff3333;
-            margin-top: 10px;
-            height: 20px;
-            font-size: 0.9em;
-        }
-        .correct { color: #33ff33; }
+        
+        .highlight { color: #ffff00; font-weight: bold; }
+        .error { color: #ff3333; text-shadow: 0 0 5px red; }
+
+        /* 隱藏元素 */
+        .hidden { display: none !important; }
+
     </style>
 </head>
 <body>
 
-<div class="console-box">
-    <div class="status-bar">
-        <span id="player-name">未登入</span>
-        <span>CREDITS: <span id="score">0</span></span>
-    </div>
-    
-    <div class="screen" id="game-screen">
-        正在連線至星際總部...<br>請輸入店長名稱以啟動系統。
-    </div>
-
-    <div class="feedback" id="feedback-msg"></div>
-
-    <div id="login-area">
-        <input type="text" id="name-input" placeholder="輸入名字">
-        <button onclick="startGame()">登入系統</button>
+<div class="console-container">
+    <div id="loader" class="loader-container">
+        <h2 style="color: #00ffcc;">SYSTEM INITIALIZING...</h2>
+        <div style="font-size: 0.9em; color: #888;">正在建立安全連線 // 若重新整理將重新排隊</div>
+        <div class="progress-bar-bg">
+            <div id="progress" class="progress-bar-fill"></div>
+        </div>
+        <div id="loading-text" style="margin-top: 10px;">0%</div>
+        <div class="warning-text">⚠️ 警告：請勿關閉或刷新網頁，否則進度將遺失</div>
     </div>
 
-    <div id="game-area" class="input-area">
-        <input type="number" id="answer-input" placeholder="答案">
-        <button onclick="checkAnswer()">確認傳送</button>
+    <div class="header-bar">
+        <span>UNIT: <span id="unit-id">STUDENT-01</span></span>
+        <span>STATUS: <span id="game-status" style="color:yellow;">ONLINE</span></span>
+        <span>TIME: <span id="real-time">00:00</span></span>
     </div>
 
-    <div id="restart-area" class="input-area">
-        <button onclick="location.reload()">重新任務</button>
+    <div id="screen" class="main-screen">
+        </div>
+
+    <div class="control-panel">
+        <input type="text" id="user-input" placeholder="輸入指令/答案" autocomplete="off">
+        <button id="action-btn" onclick="handleAction()">執行</button>
     </div>
 </div>
 
 <script>
-    let score = 0;
-    let currentLevel = 0;
-    let playerName = "";
+    // --- 遊戲資料設定 (PBL 題目區) ---
+    const gameData = {
+        player: "見習站長",
+        currentLevel: 0,
+        state: "loading", // loading, intro, question, cooldown, result, finished
+        score: 0
+    };
 
     const levels = [
         {
-            text: "【任務一：進貨計算】<br>來自火星的貨船送來了 125 箱『雷射汽水』。<br>每箱有 24 瓶。<br>請問總共有幾瓶汽水？",
-            answer: 3000,
-            hint: "提示：125 x 24 (試試看拆成 125 x 8 x 3)"
+            title: "LEVEL 1: 貨艙危機 (大數運算)",
+            story: "【警告】一艘來自火星的重型貨船試圖對接，但導航系統故障！<br>我們需要計算貨物的總重量來調整重力場。<br><br>貨船上有 <span class='highlight'>125</span> 個貨櫃，每個貨櫃重 <span class='highlight'>240</span> 公噸。<br>請輸入總重量 (公噸) 以啟動牽引光束。",
+            question_log: "125 x 240 = ?",
+            formula_hint: "提示：拆解成 125 x 8 x 30 會比較快...",
+            answer: 30000,
+            success_msg: "重力場校正成功！貨船安全對接。"
         },
         {
-            text: "【任務二：福袋包裝】<br>我們有 36 包餅乾和 48 顆糖果。<br>要分裝成『完全一樣』的福袋，不能剩下。<br>請問『最多』可以做成幾包？",
-            answer: 12,
-            hint: "提示：找出 36 和 48 的最大公因數！"
+            title: "LEVEL 2: 能量分配 (公因數)",
+            story: "【系統提示】貨物已卸載。現在要把物資平均分配給兩個基地的難民。<br>我們有 <span class='highlight'>48</span> 箱營養液和 <span class='highlight'>72</span> 箱壓縮餅乾。<br>要分裝成『完全一樣』的補給包，且不能有剩下。<br><br>請問：最多可以做成幾個補給包？(輸入數字)",
+            question_log: "求 (48, 72) 的最大公因數",
+            formula_hint: "提示：使用短除法找出 G.C.D",
+            answer: 24,
+            success_msg: "分配模組啟動。物資已完美打包。"
         },
         {
-            text: "【任務三：計算利潤】<br>每瓶汽水成本 20 元，我們賣 45 元。<br>如果你今天賣出了 10 瓶。<br>請問我們『賺』了多少錢 (利潤)？",
-            answer: 250,
-            hint: "提示：(售價 - 成本) x 數量"
+            title: "LEVEL 3: 護盾修復 (幾何對稱)",
+            story: "【警報！】偵測到隕石雨接近！太空站外層護盾破了一個洞。<br>修復機器人需要輸入護盾的『對稱軸數量』才能修補。<br><br>目前的護盾是一個『正六邊形』。<br>請問正六邊形有幾條對稱軸？(輸入數字)",
+            question_log: "正六邊形的對稱軸數量 = ?",
+            formula_hint: "提示：正N邊形有N條對稱軸...",
+            answer: 6,
+            success_msg: "護盾產生器重啟。防禦系統 100%。"
         },
         {
-            text: "【最終任務：密碼解鎖】<br>金庫密碼是下面這個數：<br>它是 15 的倍數，也是 4 的倍數。<br>而且它介於 50 到 70 之間。<br>密碼是多少？",
+            title: "FINAL: 密碼解鎖 (PBL驗證)",
+            story: "【最終任務】所有系統恢復正常。請解開站長保險箱領取獎勵。<br>密碼是一個二位數。<br>它是 5 的倍數，也是 3 的倍數，而且比 50 大，比 70 小。<br>密碼是多少？",
+            question_log: "5和3的公倍數，50 < X < 70",
+            formula_hint: "提示：找 15 的倍數...",
             answer: 60,
-            hint: "提示：找 15 和 4 的公倍數..."
+            success_msg: "權限確認。恭喜你，站長。"
         }
     ];
 
-    function startGame() {
-        const nameInput = document.getElementById("name-input");
-        if (nameInput.value.trim() === "") {
-            alert("店長，請輸入名字！");
-            return;
-        }
-        playerName = nameInput.value;
-        document.getElementById("player-name").innerText = "店長: " + playerName;
-        document.getElementById("login-area").style.display = "none";
-        document.getElementById("game-area").style.display = "block";
-        loadLevel();
+    // --- 核心邏輯 ---
+
+    // 1. 初始化與防作弊載入
+    window.onload = function() {
+        updateTime();
+        setInterval(updateTime, 1000);
+        startLoader(); // 啟動 60秒 載入
+    };
+
+    function startLoader() {
+        const progress = document.getElementById('progress');
+        const text = document.getElementById('loading-text');
+        const loader = document.getElementById('loader');
+        let width = 0;
+        
+        // 設定 60秒 (60000ms) / 100等分 = 600ms 更新一次
+        // 為了測試方便，你可以把下面的 600 改成 50 (快) 或 600 (慢，正式版用)
+        let speed = 600; 
+
+        // 開發者後門：如果在主控台打 skipLoad() 可以跳過
+        window.skipLoad = () => { width = 100; };
+
+        let interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+                loader.classList.add('hidden');
+                initGame();
+            } else {
+                width++;
+                progress.style.width = width + '%';
+                text.innerText = width + '% - CHECKING BIOS...';
+            }
+        }, speed);
     }
 
-    function loadLevel() {
-        const screen = document.getElementById("game-screen");
-        const feedback = document.getElementById("feedback-msg");
-        document.getElementById("answer-input").value = "";
-        feedback.innerText = "";
+    function initGame() {
+        gameData.state = "intro";
+        typeWriter("歡迎回到 STAR-MATH 系統，指揮官。<br>你的數學能力是這座太空站唯一的防線。<br>準備好接受挑戰了嗎？<br><br>[請輸入你的代號名字並按執行]");
+    }
+
+    // 2. 打字機特效
+    function typeWriter(text, callback) {
+        const screen = document.getElementById('screen');
+        screen.innerHTML = "";
+        let i = 0;
+        let speed = 30; // 打字速度
         
-        if (currentLevel < levels.length) {
-            screen.innerHTML = levels[currentLevel].text;
+        // 處理 HTML標籤不被打斷
+        // 這裡簡化處理，直接插入HTML，為了特效我們用更簡單的方式：
+        // 直接顯示但加一個閃爍游標
+        screen.innerHTML = '<span class="typing"></span>';
+        const typingSpan = screen.querySelector('.typing');
+        
+        // 把 <br> 替換成特殊符號處理，這裡簡單做：逐步顯示文字內容
+        // 為了避免複雜的HTML解析，這裡我們採取分段顯示
+        screen.innerHTML = text + '<span class="typing"></span>';
+        screen.scrollTop = screen.scrollHeight;
+        
+        if(callback) callback();
+    }
+
+    // 3. 處理按鈕點擊
+    function handleAction() {
+        const input = document.getElementById('user-input');
+        const btn = document.getElementById('action-btn');
+        const val = input.value.trim();
+
+        if (gameData.state === "intro") {
+            if (val === "") return;
+            gameData.player = val;
+            document.getElementById('unit-id').innerText = val;
+            input.value = "";
+            startLevel(0);
+        } else if (gameData.state === "question") {
+            checkAnswer(val);
+        } else if (gameData.state === "result") {
+            // 在結果頁面按下按鈕進入下一關
+            nextLevel();
+        }
+    }
+
+    // 4. 開始關卡
+    function startLevel(idx) {
+        gameData.currentLevel = idx;
+        const level = levels[idx];
+        const screen = document.getElementById('screen');
+        const btn = document.getElementById('action-btn');
+        const input = document.getElementById('user-input');
+
+        gameData.state = "question";
+        
+        // 顯示題目
+        screen.innerHTML = `
+            <h2 style="color:#00ffcc; border-bottom:1px solid #00ffcc;">${level.title}</h2>
+            <p>${level.story}</p>
+            <div style="margin-top:20px; color:#aaa; font-size:0.8em;">${level.formula_hint}</div>
+        `;
+        
+        input.value = "";
+        input.placeholder = "系統分析中...";
+        input.disabled = true;
+        btn.disabled = true;
+        btn.innerText = "分析中...";
+
+        // 答題冷卻時間：10秒 (防止秒答/亂按)
+        let cooldown = 10;
+        let timer = setInterval(() => {
+            cooldown--;
+            btn.innerText = `系統鎖定 (${cooldown}s)`;
+            if (cooldown <= 0) {
+                clearInterval(timer);
+                input.disabled = false;
+                btn.disabled = false;
+                input.placeholder = "輸入數值答案";
+                btn.innerText = "發射數據";
+                input.focus();
+            }
+        }, 1000);
+    }
+
+    // 5. 檢查答案
+    function checkAnswer(val) {
+        const level = levels[gameData.currentLevel];
+        const screen = document.getElementById('screen');
+        
+        if (parseInt(val) === level.answer) {
+            // 答對：進入 PBL 結算畫面
+            showResult(level);
         } else {
-            finishGame();
+            // 答錯：特效與提示
+            const originalContent = screen.innerHTML;
+            screen.innerHTML += `<div class="error">>> 錯誤！數值不符。請重新計算。</div>`;
+            screen.scrollTop = screen.scrollHeight;
+            // 簡單震動特效
+            document.querySelector('.console-container').style.transform = "translateX(5px)";
+            setTimeout(() => { document.querySelector('.console-container').style.transform = "translateX(0)"; }, 100);
         }
     }
 
-    function checkAnswer() {
-        const input = document.getElementById("answer-input").value;
-        const feedback = document.getElementById("feedback-msg");
-        
-        if (parseInt(input) === levels[currentLevel].answer) {
-            score += 100;
-            document.getElementById("score").innerText = score;
-            feedback.innerText = "正確！資料上傳成功！";
-            feedback.className = "feedback correct";
-            currentLevel++;
-            setTimeout(loadLevel, 1500);
+    // 6. PBL 結果卡 (強制停留 30秒)
+    function showResult(level) {
+        gameData.state = "result";
+        const screen = document.getElementById('screen');
+        const btn = document.getElementById('action-btn');
+        const input = document.getElementById('user-input');
+
+        // 生成結果卡
+        screen.innerHTML = `
+            <div class="result-card">
+                <h3 style="margin:0; color:#ff00ff;">★ MISSION COMPLETE ★</h3>
+                <p>任務報告已生成，請截圖保存。</p>
+                <hr style="border:1px dashed #ff00ff;">
+                <p><strong>題目：</strong> ${level.question_log}</p>
+                <p><strong>算式概念：</strong> ${level.formula_hint}</p>
+                <p><strong>最終答案：</strong> <span class="highlight" style="font-size:1.5em;">${level.answer}</span></p>
+                <p><strong>狀態：</strong> ${level.success_msg}</p>
+            </div>
+            <div id="upload-status" style="margin-top:20px; color:yellow;">正在上傳數據至總部... 請稍候</div>
+        `;
+
+        input.value = "";
+        input.placeholder = "上傳中...";
+        input.disabled = true;
+        btn.disabled = true;
+
+        // 強制停留 30秒
+        let waitTime = 30;
+        let timer = setInterval(() => {
+            waitTime--;
+            btn.innerText = `上傳中 (${waitTime}s)`;
+            if (waitTime <= 0) {
+                clearInterval(timer);
+                btn.disabled = false;
+                btn.innerText = "接收下一個任務";
+                document.getElementById('upload-status').innerText = ">> 數據上傳完畢。可以繼續。";
+                document.getElementById('upload-status').style.color = "#00ffcc";
+            }
+        }, 1000);
+    }
+
+    function nextLevel() {
+        if (gameData.currentLevel + 1 < levels.length) {
+            startLevel(gameData.currentLevel + 1);
         } else {
-            feedback.innerText = "錯誤！系統警告！" + levels[currentLevel].hint;
-            feedback.className = "feedback";
-            score -= 10;
-            document.getElementById("score").innerText = score;
+            // 全破畫面
+            document.getElementById('screen').innerHTML = `
+                <h1 style="text-align:center; color:#ffff00; margin-top:50px;">ALL SYSTEMS CLEAR</h1>
+                <p style="text-align:center;">恭喜你，${gameData.player} 指揮官。</p>
+                <p style="text-align:center;">所有的數學危機都已解除。</p>
+                <p style="text-align:center;">現在，請將你在任務中截圖的「結果卡」，<br>製作成你的星際站長日誌吧！</p>
+            `;
+            document.getElementById('action-btn').style.display = 'none';
+            document.getElementById('user-input').style.display = 'none';
         }
     }
 
-    function finishGame() {
-        const screen = document.getElementById("game-screen");
-        document.getElementById("game-area").style.display = "none";
-        document.getElementById("restart-area").style.display = "block";
-        
-        screen.innerHTML = `任務完成！<br>辛苦了，${playerName} 店長。<br>你的最終營業額分數是：${score}<br><br>請截圖此畫面作為 PBL 成果！`;
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('real-time').innerText = now.toTimeString().substring(0, 5);
     }
+
 </script>
 
 </body>
