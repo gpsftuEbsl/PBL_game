@@ -13,10 +13,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 0vh;
+            height: 100vh;
             margin: 0;
             overflow: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #2d1b4e 0%, #1a0b2e 0%);
+            background-image: radial-gradient(circle at 50% 50%, #2d1b4e 0%, #1a0b2e 100%);
         }
 
         .console-container {
@@ -449,7 +449,7 @@
             btn.disabled = true;
             btn.innerText = "魔力冷卻中...";
 
-            let cooldown = 20; // 測試模式：冷卻 10秒
+            let cooldown = 10; // 測試模式：冷卻 10秒
             let timer = setInterval(() => {
                 cooldown--;
                 btn.innerText = `魔力凝聚 (${cooldown}s)`;
@@ -639,8 +639,8 @@
             setTimeout(() => {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
-                particle.style.left = Math.random() * 0 + '%';
-                particle.style.top = Math.random() * 0 + '%';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
                 particle.style.background = ['#ffd700', '#9400d3', '#4b0082'][Math.floor(Math.random() * 3)];
                 container.appendChild(particle);
                 setTimeout(() => particle.remove(), 2000);
