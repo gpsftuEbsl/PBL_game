@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星際補給站長 - 數學任務</title>
+    <style>
+        body {
+            background-color: #0d0d1a;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .console-box {
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #00ffcc;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            padding: 30px;
+            width: 600px;
+            text-align: center;
+            border-radius: 10px;
+            position: relative;
+        }
+        h1 {
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ffcc;
+        }
+        .screen {
+            background: #000;
+            border: 1px solid #004433;
+            padding: 20px;
+            margin-bottom: 20px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: #ccffee;
+        }
+        .input-area {
+            display: none;
+        }
+        input[type="number"], input[type="text"] {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #00ffcc;
+            color: #fff;
+            font-size: 1.5em;
+            text-align: center;
+            width: 150px;
+            margin-right: 10px;
+        }
+        input:focus {
+            outline: none;
+        }
+        button {
+            background: #00ffcc;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #fff;
+            box-shadow: 0 0 15px #fff;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        .hidden { display: none; }
+        .feedback {
+            color: #ff3333;
+            margin-top: 10px;
+            height: 20px;
+            font-size: 0.9em;
+        }
+        .correct { color: #33ff33; }
+    </style>
+</head>
+<body>
+
+<div class="console-box">
+    <div class="status-bar">
+        <span id="player-name">未登入</span>
+        <span>CREDITS: <span id="score">0</span></span>
+    </div>
+    
+    <div class="screen" id="game-screen">
+        正在連線至星際總部...<br>請輸入店長名稱以啟動系統。
+    </div>
+
+    <div class="feedback" id="feedback-msg"></div>
+
+    <div id="login-area">
+        <input type="text" id="name-input" placeholder="輸入名字">
+        <button onclick="startGame()">登入系統</button>
+    </div>
+
+    <div id="game-area" class="input-area">
+        <input type="number" id="answer-input" placeholder="答案">
+        <button onclick="checkAnswer()">確認傳送</button>
+    </div>
+
+    <div id="restart-area" class="input-area">
+        <button onclick="location.reload()">重新任務</button>
+    </div>
+</div>
+
+<script>
+    let score = 0;
+    let currentLevel = 0;
+    let playerName = "";
+
+    const levels = [
+        {
+            text: "【任務一：進貨計算】<br>來自火星的貨船送來了 125 箱『雷射汽水』。<br>每箱有 24 瓶。<br>請問總共有幾瓶汽水？",
+            answer: 3000,
+            hint: "提示：125 x 24 (試試看拆成 125 x 8 x 3)"
+        },
+        {
+            text: "【任務二：福袋包裝】<br>我們有 36 包餅乾和 48 顆糖果。<br>要分裝成『完全一樣』的福袋，不能剩下。<br>請問『最多』可以做成幾包？",
+            answer: 12,
+            hint: "提示：找出 36 和 48 的最大公因數！"
+        },
+        {
+            text: "【任務三：計算利潤】<br>每瓶汽水成本 20 元，我們賣 45 元。<br>如果你今天賣出了 10 瓶。<br>請問我們『賺』了多少錢 (利潤)？",
+            answer: 250,
+            hint: "提示：(售價 - 成本) x 數量"
+        },
+        {
+            text: "【最終任務：密碼解鎖】<br>金庫密碼是下面這個數：<br>它是 15 的倍數，也是 4 的倍數。<br>而且它介於 50 到 70 之間。<br>密碼是多少？",
+            answer: 60,
+            hint: "提示：找 15 和 4 的公倍數..."
+        }
+    ];
+
+    function startGame() {
+        const nameInput = document.getElementById("name-input");
+        if (nameInput.value.trim() === "") {
+            alert("店長，請輸入名字！");
+            return;
+        }
+        playerName = nameInput.value;
+        document.getElementById("player-name").innerText = "店長: " + playerName;
+        document.getElementById("login-area").style.display = "none";
+        document.getElementById("game-area").style.display = "block";
+        loadLevel();
+    }
+
+    function loadLevel() {
+        const screen = document.getElementById("game-screen");
+        const feedback = document.getElementById("feedback-msg");
+        document.getElementById("answer-input").value = "";
+        feedback.innerText = "";
+        
+        if (currentLevel < levels.length) {
+            screen.innerHTML = levels[currentLevel].text;
+        } else {
+            finishGame();
+        }
+    }
+
+    function checkAnswer() {
+        const input = document.getElementById("answer-input").value;
+        const feedback = document.getElementById("feedback-msg");
+        
+        if (parseInt(input) === levels[currentLevel].answer) {
+            score += 100;
+            document.getElementById("score").innerText = score;
+            feedback.innerText = "正確！資料上傳成功！";
+            feedback.className = "feedback correct";
+            currentLevel++;
+            setTimeout(loadLevel, 1500);
+        } else {
+            feedback.innerText = "錯誤！系統警告！" + levels[currentLevel].hint;
+            feedback.className = "feedback";
+            score -= 10;
+            document.getElementById("score").innerText = score;
+        }
+    }
+
+    function finishGame() {
+        const screen = document.getElementById("game-screen");
+        document.getElementById("game-area").style.display = "none";
+        document.getElementById("restart-area").style.display = "block";
+        
+        screen.innerHTML = `任務完成！<br>辛苦了，${playerName} 店長。<br>你的最終營業額分數是：${score}<br><br>請截圖此畫面作為 PBL 成果！`;
+    }
+</script>
+
+</body>
+</html>
