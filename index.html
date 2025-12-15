@@ -56,6 +56,7 @@
             box-shadow: inset 0 0 20px #000;
         }
 
+        /* --- 載入條動畫 --- */
         .loader-container {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -129,7 +130,6 @@
         button:disabled { background: #333; color: #666; cursor: not-allowed; transform: none; box-shadow: none;}
 
         @keyframes glow { from {text-shadow: 0 0 5px #ff0000;} to {text-shadow: 0 0 20px #ff0000;} }
-        @keyframes sparkle { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
@@ -151,6 +151,8 @@
         .highlight { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px #ffd700; }
         .error { color: #ff6b6b; font-style: italic; }
         .magic-text { color: #e6e6fa; font-style: italic; }
+        
+        /* 關鍵樣式：隱藏元素 */
         .hidden { display: none !important; }
 
         /* 選擇題樣式 */
@@ -340,14 +342,14 @@
         const loader = document.getElementById('loader');
         let width = 0;
         
-        let speed = 10; // 測試用快速載入
+        let speed = 20; // 測試模式：速度設為 20 (若要正式上課防作弊，請改成 600)
 
         window.skipLoad = () => { width = 100; };
 
         let interval = setInterval(() => {
             if (width >= 100) {
                 clearInterval(interval);
-                loader.classList.add('hidden');
+                loader.classList.add('hidden'); // 關鍵：加上 hidden class 隱藏載入畫面
                 initGame();
             } else {
                 width++;
@@ -447,7 +449,7 @@
             btn.disabled = true;
             btn.innerText = "魔力冷卻中...";
 
-            let cooldown = 20;
+            let cooldown = 10; // 測試模式：冷卻 10秒
             let timer = setInterval(() => {
                 cooldown--;
                 btn.innerText = `魔力凝聚 (${cooldown}s)`;
@@ -468,8 +470,10 @@
         const screen = document.getElementById('screen');
         
         if (parseInt(val) === level.answer) {
+            playSound('success');
             showResult(level);
         } else {
+            playSound('error');
             screen.innerHTML += `<div class="error">>> 咒語反噬！答案錯誤，請重新計算...</div>`;
             screen.scrollTop = screen.scrollHeight;
             shakeScreen();
@@ -478,6 +482,7 @@
 
     function selectChoice(index) {
         const level = levels[gameData.currentLevel];
+        // 提取數字 (例如 "28,000 片" -> 28000)
         const userAnswer = parseInt(level.choices[index].replace(/[^\d]/g, ''));
         
         if (userAnswer === level.answer) {
@@ -554,6 +559,7 @@
         if (dropSequence.filter(x => x !== null).length === 3) {
             try {
                 const formula = dropSequence.join(' ');
+                // 將 × 替換為 * 進行計算
                 const result = eval(formula.replace('×', '*'));
                 document.getElementById('result-display').innerText = result;
                 
@@ -599,7 +605,7 @@
         input.disabled = true;
         btn.disabled = true;
 
-        let waitTime = 15;
+        let waitTime = 10; // 測試模式：縮短等待時間為 10秒
         let timer = setInterval(() => {
             waitTime--;
             btn.innerText = `銘刻中 (${waitTime}s)`;
@@ -650,39 +656,42 @@
         }, 500);
     }
 
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
+    // 建立音效系統
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
-        // 建立音效振盪器
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        if (type === 'success') {
-            // 成功音效：三連音 (Do-Mi-Sol)
-            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
-            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
+        // 如果瀏覽器阻擋自動播放，這裡可能會報錯，所以加個 try-catch
+        try {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
             
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
             
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.4);
-        } else if (type === 'error') {
-            // 失敗音效：低頻下降
-            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
-            
-            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.3);
+            if (type === 'success') {
+                // 成功音效：Do-Mi-Sol
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+            } else if (type === 'error') {
+                // 失敗音效
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+        } catch(e) {
+            console.log("Audio play failed (user interaction needed first)");
         }
     }
 
